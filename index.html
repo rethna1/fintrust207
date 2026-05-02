@@ -428,6 +428,7 @@ window.open("https://wa.me/?text="+encodeURIComponent(summaryText),'_blank');
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 </script>
+  <script>  
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js")
     .then(() => console.log("Service Worker Registered"));
