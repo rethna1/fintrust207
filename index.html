@@ -2,7 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="icon" href="icon-192.png">
 
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<link rel="manifest" href="manifest.json">
 <div class="brand-row">
     <div class="logo-circle">
         <div class="logo-text">
@@ -424,6 +428,10 @@ window.open("https://wa.me/?text="+encodeURIComponent(summaryText),'_blank');
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 </script>
-
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Service Worker Registered"));
+}
+</script>
 </body>
 </html>
