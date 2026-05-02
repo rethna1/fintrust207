@@ -1,0 +1,429 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+
+<div class="brand-row">
+    <div class="logo-circle">
+        <div class="logo-text">
+            <div class="fc">FC</div>
+            <div class="line1">FINTRUST</div>
+            <div class="line2">CREATIONS</div>
+        </div>
+    </div>
+
+    <h2 class="brand-title">FinTrust Creations</h2>
+</div>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Freedom Calculator</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#f4f6f9;
+  padding:15px;
+  margin:0;
+}
+
+h2{text-align:center;color:#2c3e50;}
+
+.card{
+  background:#fff;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-top:12px;
+}
+
+input{
+  width:100%;
+  height:52px;
+  padding:12px;
+  margin-top:6px;
+  border-radius:10px;
+  border:2px solid #d0d7de;
+  font-size:16px;
+  box-sizing:border-box;
+}
+
+input:focus{
+  border:2px solid #0a7cff;
+  box-shadow:0 0 0 3px rgba(10,124,255,0.15);
+  outline:none;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:12px;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.calc{background:#0a7cff;color:#fff;}
+.share{background:#25D366;color:#fff;}
+
+.result{
+  background:#eef5ff;
+  padding:15px;
+  border-radius:10px;
+  margin-top:15px;
+}
+
+.highlight{
+  background:#e8fff3;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  font-weight:bold;
+  color:#1e8449;
+}
+
+.warning{
+  background:#ffe5e5;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  color:#c0392b;
+  font-weight:bold;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  font-size:13px;
+}
+
+th, td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:center;
+}
+
+th{
+  background:#0a7cff;
+  color:#fff;
+}
+
+/* FOOTER */
+.ft-footer{
+    margin-top:30px;
+    padding:15px;
+    background:#f5f5f5;
+    font-size:13px;
+}
+
+/* JUSTIFIED DISCLAIMER */
+.ft-disclaimer{
+    text-align: justify;
+    color:#555;
+    line-height:1.6;
+}
+
+/* COPYRIGHT */
+.ft-copy{
+    text-align:center;
+    margin-top:10px;
+    font-weight:600;
+}
+
+.brand-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:15px 0;
+}
+
+/* LOGO CIRCLE */
+.logo-circle{
+    width:48px;
+    height:48px;
+    background:#1aa179;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* LOGO TEXT */
+.logo-text{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+}
+
+/* FC */
+.logo-text .fc{
+    font-size:14px;
+    font-weight:bold;
+    line-height:1;
+}
+
+/* FINTRUST */
+.logo-text .line1{
+    font-size:6px;
+    line-height:1;
+    margin:0;
+}
+
+/* CREATIONS */
+.logo-text .line2{
+    font-size:6px;
+    line-height:1;
+    margin:0;
+}
+
+/* HEADING */
+.brand-title{
+    font-size:22px;
+    margin:0;
+    color:#2c3e50;
+    font-weight:600;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Financial Freedom Planner</h2>
+
+<div class="card">
+
+<label>Current Age</label>
+<input type="number" id="age" value="30">
+
+<!-- ✅ NEW -->
+<label>Freedom Age</label>
+<input type="number" id="freedomAge" value="45">
+
+<label>Monthly Expense (Today)</label>
+<input type="number" id="expense" value="30000">
+
+<label>Inflation (%)</label>
+<input type="number" id="inflation" value="6">
+
+<label>Return (%)</label>
+<input type="number" id="return" value="12">
+
+<label>Step-up SIP (% yearly)</label>
+<input type="number" id="stepup" value="10">
+
+<label>SWP Withdrawal (%)</label>
+<input type="number" id="swp" value="4">
+
+<button class="calc" onclick="calculate()">Calculate</button>
+<button class="share" onclick="share()">Share WhatsApp</button>
+
+</div>
+
+<div class="result" id="result"></div>
+<div id="table"></div>
+
+<script>
+
+let summaryText="";
+
+function format(n){
+  return "Rs " + Math.round(n).toLocaleString("en-IN");
+}
+
+/* SIP */
+function calcSIP(target, rate, months){
+  let r = rate/100/12;
+  return target * r / ((Math.pow(1+r, months)-1)*(1+r));
+}
+
+/* STEP-UP SIP */
+function calcStepUp(target, rate, years, stepup){
+
+  let r = rate/100;
+  let low=0, high=100000, ans=0;
+
+  for(let i=0;i<30;i++){
+
+    let mid=(low+high)/2;
+    let corpus=0;
+    let sip=mid;
+
+    for(let y=1;y<=years;y++){
+
+      for(let m=1;m<=12;m++){
+        corpus=(corpus+sip)*(1+r/12);
+      }
+
+      sip*= (1+stepup/100);
+    }
+
+    if(corpus>=target){
+      ans=mid;
+      high=mid;
+    }else{
+      low=mid;
+    }
+  }
+
+  return Math.round(ans);
+}
+
+function calculate(){
+
+let age = +document.getElementById("age").value;
+let freedomAge = +document.getElementById("freedomAge").value;
+let expense = +document.getElementById("expense").value;
+let inflation = +document.getElementById("inflation").value;
+let ret = +document.getElementById("return").value;
+let stepup = +document.getElementById("stepup").value;
+let swp = +document.getElementById("swp").value;
+
+/* YEARS */
+let years = freedomAge - age;
+
+if(years <= 0){
+  document.getElementById("result").innerHTML =
+  "<div class='warning'>⚠️ Freedom age must be greater than current age</div>";
+  return;
+}
+
+/* FUTURE EXPENSE */
+let futureExpense = expense * Math.pow(1 + inflation/100, years);
+
+/* CORPUS */
+let corpus = (futureExpense * 12) / (swp/100);
+
+/* SIP */
+let sipNormal = calcSIP(corpus, ret, years*12);
+let sipStep = calcStepUp(corpus, ret, years, stepup);
+
+/* RESULT */
+
+let html = "";
+
+html += "<b>Freedom Age:</b> "+freedomAge+"<br><br>";
+html += "<b>Years to Invest:</b> "+years+" yrs<br><br>";
+
+html += "<b>Monthly Expense @Freedom:</b><br>"+format(futureExpense)+"<br><br>";
+html += "<b>Required Corpus ("+swp+"% SWP):</b><br>"+format(corpus)+"<br>";
+
+html += "<div class='highlight'>Normal SIP: "+format(sipNormal)+"</div>";
+html += "<div class='highlight'>Step-up SIP: "+format(sipStep)+"</div>";
+
+html += "<div class='highlight'>SWP Income After "+freedomAge+": "+format(corpus*(swp/100)/12)+"</div>";
+
+if(years<=10){
+  html += "<div class='warning'>⚠️ Late start → High SIP burden</div>";
+}
+
+document.getElementById("result").innerHTML = html;
+
+/* TABLE */
+
+let table = "<h3>Year-wise Step-up Growth</h3>";
+table += "<table>";
+table += "<tr><th>Year</th><th>SIP</th><th>Corpus</th></tr>";
+
+let sip = sipStep;
+let total = 0;
+
+for(let y=1;y<=years;y++){
+
+  for(let m=1;m<=12;m++){
+    total = (total + sip)*(1+ret/100/12);
+  }
+
+  table += "<tr>";
+  table += "<td>"+y+"</td>";
+  table += "<td>"+format(sip)+"</td>";
+  table += "<td>"+format(total)+"</td>";
+  table += "</tr>";
+
+  sip *= (1+stepup/100);
+}
+
+table += "</table>";
+
+document.getElementById("table").innerHTML = table;
+
+/* WHATSAPP */
+
+summaryText =
+"FINANCIAL FREEDOM PLAN\n\n"+
+
+"CURRENT DETAILS\n"+
+"Age: "+age+"\n"+
+"Target Freedom Age: "+freedomAge+"\n"+
+"Investment Period: "+years+" years\n\n"+
+
+"EXPENSE PROJECTION\n"+
+"Today's Monthly Expense: Rs "+expense.toLocaleString("en-IN")+"\n"+
+"Expense at Age "+freedomAge+": Rs "+Math.round(futureExpense).toLocaleString("en-IN")+"\n\n"+
+
+"REQUIRED CORPUS\n"+
+"Based on "+swp+" percent SWP Strategy\n"+
+"Total Corpus Needed: Rs "+Math.round(corpus).toLocaleString("en-IN")+"\n\n"+
+
+"INVESTMENT PLAN\n"+
+"Normal SIP Required: Rs "+sipNormal.toLocaleString("en-IN")+"\n"+
+"Step-up SIP (Recommended): Rs "+sipStep.toLocaleString("en-IN")+"\n\n"+
+
+"PASSIVE INCOME AFTER FREEDOM\n"+
+"Monthly Income (SWP): Rs "+Math.round(corpus*(swp/100)/12).toLocaleString("en-IN")+"\n\n"+
+
+"STRATEGY INSIGHT\n"+
+"- Lower SWP (4 to 6 percent) = Safer, long lasting income\n"+
+"- Higher SWP (8 percent) = Lower SIP but higher risk\n"+
+"- Step-up SIP reduces starting burden\n\n"+
+
+(years<=10 
+? "ALERT: You are starting late. SIP burden is high.\n\n" 
+: "ADVANTAGE: You have time. SIP is manageable.\n\n")+
+
+"KEY MESSAGE\n"+
+"Start early = Less SIP\n"+
+"Delay = More burden\n\n"+
+
+"FinTrust MF Distribution\n8590858767";
+
+}
+
+function share(){
+if(!summaryText){
+alert("Calculate first");
+return;
+}
+window.open("https://wa.me/?text="+encodeURIComponent(summaryText),'_blank');
+}
+
+</script>
+
+<!-- FOOTER -->
+<div class="ft-footer">
+    <p class="ft-disclaimer">
+        Disclaimer: This calculator is for educational and illustrative purposes only. Returns shown are indicative, actual may vary.
+        Mutual fund investments are subject to market risks. Please consult your financial advisor before investing.
+    </p>
+
+    <p class="ft-copy">
+        © <span id="year"></span> FinTrust Creations. All Rights Reserved.
+    </p>
+</div>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
